@@ -29,12 +29,12 @@ std::istream& operator>>(std::istream& is_, Input& obj_)
 	auto* current_container = &obj_._left_expressions;
 	while (found != input.end())
 	{
+		// Switch container
 		if (input.front() == '=')
 		{
 			current_container = &obj_._right_expressions;
 			input.erase(0, 1);
 			prependplus();
-			continue;
 		}
 
 		found = std::find_if(input.begin() + 1, input.end(), isseparatingoperator);
