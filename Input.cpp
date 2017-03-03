@@ -1,47 +1,59 @@
 #include "Input.hpp"
 
+// Split Input String into _expression vector while keeping preceding separating operators
+void Input::splitInput()
+{
+	auto found = _input.begin();
+	auto* current_container = &_left_expressions;
+	while (found != _input.end())
+	{
+		// Switch container
+		if (_input.front() == '=')
+		{
+			current_container = &_right_expressions;
+			_input.erase(0, 1);
+			prependPlus();
+		}
+
+		found = std::find_if(_input.begin() + 1, _input.end(), [&](const char& char_)
+		{
+			return isSeparatingOperator(char_);
+		});
+
+		current_container->emplace_back(_input.begin(), found);
+		_input.erase(_input.begin(), found);
+		found = _input.begin();
+	}
+}
+
+// Put a + in front of the _input string if necessary
+void Input::prependPlus()
+{
+	if (!isSeparatingOperator(_input.front()))
+		_input.insert(0, 1, '+');
+}
+
+// Find out if character is separating operator in the front of the input (+/-)
+bool Input::isSeparatingOperator(const char& char_)
+{
+	return (char_ == '+' || char_ == '-' || char_ == '=');
+}
+
 std::istream& operator>>(std::istream& is_, Input& obj_)
 {
+	// Create Shorthand
+	auto& input = obj_._input;
+
 	// IStream to String
-	std::string input;
 	is_ >> input;
 
 	// Remove spaces
 	std::remove_if(input.begin(), input.end(), isspace);
 
-	// Find out if character is separating opeator (+/-)
-	auto isseparatingoperator = [] (const char char_)
-	{
-		return (char_ == '+' || char_ == '-' || char_ == '=');
-	};
-
 	// Prepend + Symbol
-	auto prependplus = [&] ()
-	{
-		if (!isseparatingoperator(input.front()))
-			input.insert(0, 1, '+');
-	};
-	
-	prependplus();
+	obj_.prependPlus();
 
-	// Split Input String into _expression vector while keeping preceeding separating operators
-	auto found = input.begin();
-	auto* current_container = &obj_._left_expressions;
-	while (found != input.end())
-	{
-		// Switch container
-		if (input.front() == '=')
-		{
-			current_container = &obj_._right_expressions;
-			input.erase(0, 1);
-			prependplus();
-		}
-
-		found = std::find_if(input.begin() + 1, input.end(), isseparatingoperator);
-		current_container->emplace_back(input.begin(), found);
-		input.erase(input.begin(), found);
-		found = input.begin();
-	}
+	obj_.splitInput();
 
 	return is_;
 }
