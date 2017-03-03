@@ -44,15 +44,16 @@ std::istream& operator>>(std::istream& is_, Input& obj_)
 	// Create Shorthand
 	auto& input = obj_._input;
 
-	// IStream to String
+	// Istream to string
 	is_ >> input;
 
 	// Remove spaces
 	std::remove_if(input.begin(), input.end(), isspace);
 
-	// Prepend + Symbol
+	// Prepend + symbol
 	obj_.prependPlus();
 
+	// Split string to vectors
 	obj_.splitInput();
 
 	return is_;
